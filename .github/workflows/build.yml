@@ -56,17 +56,14 @@ jobs:
         run: |
           pnpm release:mac
 
-      - name: Upload Individual macOS Distributables
+      - name: Upload macOS Build Artifacts
         if: startsWith(matrix.os, 'macOS') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
-        run: |
-          for file in pack/*.{dmg,zip}; do
-            echo "Uploading $file as an artifact..."
-            filename=$(basename "$file")
-            artifact_name="macOS-${filename}"
-            gh run upload-artifact --name "$artifact_name" --path "$file"
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-build
+          path: |
+            pack/*.dmg
+            pack/*.zip
 
       - name: Build and release on Linux
         if: startsWith(matrix.os, 'ubuntu') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
@@ -82,17 +79,16 @@ jobs:
           sudo flatpak install -y flathub org.electronjs.Electron2.BaseApp/x86_64/20.08
           pnpm release:linux
 
-      - name: Upload Individual Linux Distributables
+      - name: Upload Linux Build Artifacts
         if: startsWith(matrix.os, 'ubuntu') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
-        run: |
-          for file in pack/*.{AppImage,deb,rpm,tar.gz}; do
-            echo "Uploading $file as an artifact..."
-            filename=$(basename "$file")
-            artifact_name="linux-${filename}"
-            gh run upload-artifact --name "$artifact_name" --path "$file"
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            pack/*.AppImage
+            pack/*.deb
+            pack/*.rpm
+            pack/*.tar.gz
 
 
       - name: Build and release on Windows
@@ -102,18 +98,14 @@ jobs:
         run: |
           pnpm release:win
 
-      - name: Upload Individual Windows Distributables
+      - name: Upload Windows Build Artifacts
         if: startsWith(matrix.os, 'windows') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
-        run: |
-          for file in pack/*.{exe,msi}; do
-            echo "Uploading $file as an artifact..."
-            filename=$(basename "$file")
-            artifact_name="Windows-${filename}"
-            gh run upload-artifact --name "$artifact_name" --path "$file"
-          done
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            pack/*.exe
+            pack/*.msi
 
       - name: Test
         uses: coactions/setup-xvfb@v1
