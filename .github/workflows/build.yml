@@ -58,9 +58,10 @@ jobs:
 
       - name: Upload macOS Build Artifacts
         if: startsWith(matrix.os, 'macOS') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
-        uses: actions/upload-artifact@v4
+        uses: initdc/upload-artifact@baac12d9f85834b2f8baa26a08ff97c27cc82cd9 # latest commit https://github.com/actions/upload-artifact/pull/354
         with:
-          name: macOS-build
+          artifact-per-file: true
+          artifact-name-rule: macos-${name}${ext}
           path: |
             pack/*.dmg
             pack/*.zip
@@ -81,9 +82,10 @@ jobs:
 
       - name: Upload Linux Build Artifacts
         if: startsWith(matrix.os, 'ubuntu') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
-        uses: actions/upload-artifact@v4
+        uses: initdc/upload-artifact@baac12d9f85834b2f8baa26a08ff97c27cc82cd9 # latest commit https://github.com/actions/upload-artifact/pull/354
         with:
-          name: linux-build
+          artifact-per-file: true
+          artifact-name-rule: linux-${name}${ext}
           path: |
             pack/*.AppImage
             pack/*.deb
@@ -100,9 +102,10 @@ jobs:
 
       - name: Upload Windows Build Artifacts
         if: startsWith(matrix.os, 'windows') && (github.repository == 'ArjixWasTaken/youtube-music' && github.event_name != 'pull_request')
-        uses: actions/upload-artifact@v4
+        uses: initdc/upload-artifact@baac12d9f85834b2f8baa26a08ff97c27cc82cd9 # latest commit https://github.com/actions/upload-artifact/pull/354
         with:
-          name: windows-build
+          artifact-per-file: true
+          artifact-name-rule: windows-${name}${ext}
           path: |
             pack/*.exe
             pack/*.msi
