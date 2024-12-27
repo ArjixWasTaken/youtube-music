@@ -1,5 +1,5 @@
 // This is used for to control the songs
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 
 // see protocol-handler.ts
 type ArgsType<T> = T | string[] | undefined;
@@ -24,6 +24,16 @@ const parseBooleanFromArgsType = (args: ArgsType<boolean>) => {
   }
 };
 
+const parseStringFromArgsType = (args: ArgsType<string>) => {
+  if (typeof args === 'string') {
+    return args;
+  } else if (Array.isArray(args)) {
+    return args[0];
+  } else {
+    return null;
+  }
+};
+
 export default (win: BrowserWindow) => {
   return {
     // Playback
@@ -34,6 +44,12 @@ export default (win: BrowserWindow) => {
     playPause: () => win.webContents.send('ytmd:toggle-play'),
     like: () => win.webContents.send('ytmd:update-like', 'LIKE'),
     dislike: () => win.webContents.send('ytmd:update-like', 'DISLIKE'),
+    seekTo: (seconds: ArgsType<number>) => {
+      const secondsNumber = parseNumberFromArgsType(seconds);
+      if (secondsNumber !== null) {
+        win.webContents.send('ytmd:seek-to', seconds);
+      }
+    },
     goBack: (seconds: ArgsType<number>) => {
       const secondsNumber = parseNumberFromArgsType(seconds);
       if (secondsNumber !== null) {
@@ -74,11 +90,49 @@ export default (win: BrowserWindow) => {
       win.webContents.send('ytmd:get-queue');
     },
     muteUnmute: () => win.webContents.send('ytmd:toggle-mute'),
-    search: () => {
+    openSearchBox: () => {
       win.webContents.sendInputEvent({
         type: 'keyDown',
         keyCode: '/',
       });
     },
+    // Queue
+    addSongToQueue: (videoId: string) => {
+      const videoIdValue = parseStringFromArgsType(videoId);
+      if (videoIdValue === null) return;
+
+      win.webContents.send('ytmd:add-to-queue', videoIdValue);
+    },
+    moveSongInQueue: (
+      fromIndex: ArgsType<number>,
+      toIndex: ArgsType<number>,
+    ) => {
+      const fromIndexValue = parseNumberFromArgsType(fromIndex);
+      const toIndexValue = parseNumberFromArgsType(toIndex);
+      if (fromIndexValue === null || toIndexValue === null) return;
+
+      win.webContents.send('ytmd:move-in-queue', fromIndexValue, toIndexValue);
+    },
+    removeSongFromQueue: (index: ArgsType<number>) => {
+      const indexValue = parseNumberFromArgsType(index);
+      if (indexValue === null) return;
+
+      win.webContents.send('ytmd:remove-from-queue', indexValue);
+    },
+    setQueueIndex: (index: ArgsType<number>) => {
+      const indexValue = parseNumberFromArgsType(index);
+      if (indexValue === null) return;
+
+      win.webContents.send('ytmd:set-queue-index', indexValue);
+    },
+    clearQueue: () => win.webContents.send('ytmd:clear-queue'),
+
+    search: (query: string) =>
+      new Promise((resolve) => {
+        ipcMain.once('ytmd:search-results', (_, result) => {
+          resolve(result as string);
+        });
+        win.webContents.send('ytmd:search', query);
+      }),
   };
 };

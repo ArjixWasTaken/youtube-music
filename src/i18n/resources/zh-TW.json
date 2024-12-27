@@ -279,6 +279,13 @@
       },
       "name": "微光效果"
     },
+    "amuse": {
+      "description": "加入支援 6K Labs 的 Amuse OBS 外掛以取得 Youtube Music 現正播放資訊",
+      "name": "Amuse",
+      "response": {
+        "query": "Amuse API 伺服器正在運行中，使用 /query 以取得歌曲資訊。"
+      }
+    },
     "api-server": {
       "description": "新增伺服器以使用 API 控制播放器",
       "dialog": {
@@ -484,6 +491,18 @@
         "button": "下載"
       }
     },
+    "equalizer": {
+      "description": "為播放器加入等化器",
+      "menu": {
+        "presets": {
+          "label": "預設格式",
+          "list": {
+            "bass-booster": "低音增強器"
+          }
+        }
+      },
+      "name": "等化器"
+    },
     "exponential-volume": {
       "description": "使音量滑桿指數化，以便更容易選擇較低的音量。",
       "name": "指數化音量調整"
@@ -506,7 +525,7 @@
       },
       "name": "第三方字幕",
       "renderer": {
-        "fetched-lyrics": "為Genius獲取字幕"
+        "fetched-lyrics": "為 Genius 獲取字幕"
       }
     },
     "music-together": {
@@ -714,7 +733,7 @@
     "synced-lyrics": {
       "description": "使用 LRClib 等管道提供歌詞同步顯示。",
       "errors": {
-        "fetch": "⚠️擷取歌詞時發生錯誤。請稍後再試。",
+        "fetch": "⚠️\t擷取歌詞時發生錯誤\n請稍後再試。",
         "not-found": "⚠️未找到該首歌曲的歌詞。"
       },
       "menu": {
@@ -725,6 +744,10 @@
         "line-effect": {
           "label": "歌詞顯示效果",
           "submenu": {
+            "fancy": {
+              "label": "絢麗",
+              "tooltip": "使用較為接近原生樣式並且放大當前該行歌詞"
+            },
             "focus": {
               "label": "高亮",
               "tooltip": "高亮當前的歌詞"

@@ -2,13 +2,8 @@ import type { YoutubePlayer } from '@/types/youtube-player';
 import type { GetState, QueueItem } from '@/types/datahost-get-state';
 
 type StoreState = GetState;
-type Store = {
-  dispatch: (obj: {
-    type: string;
-    payload?: {
-      items?: QueueItem[];
-    };
-  }) => void;
+export type Store = {
+  dispatch: (obj: { type: string; payload?: unknown }) => void;
 
   getState: () => StoreState;
   replaceReducer: (param1: unknown) => unknown;

@@ -63,6 +63,11 @@ let yt: Innertube;
 let win: BrowserWindow;
 let playingUrl: string;
 
+const isYouTubePremium = () =>
+  win.webContents.executeJavaScript(
+    '!document.querySelector(\'#endpoint[href="/music_premium"]\')',
+  ) as Promise<boolean>;
+
 const sendError = (error: Error, source?: string) => {
   win.setProgressBar(-1); // Close progress bar
   setBadge(0); // Close badge
@@ -313,7 +318,7 @@ async function downloadSongUnsafe(
   }
 
   const downloadOptions: FormatOptions = {
-    type: 'audio', // Audio, video or video+audio
+    type: (await isYouTubePremium()) ? 'audio' : 'video+audio', // Audio, video or video+audio
     quality: 'best', // Best, bestefficiency, 144p, 240p, 480p, 720p and so on.
     format: 'any', // Media container format
   };
@@ -585,20 +590,17 @@ export async function downloadPlaylist(givenUrl?: string | URL) {
     return;
   }
 
-  if (
-    !playlist ||
-    !playlist.items ||
-    playlist.items.length === 0 ||
-    !playlist.header ||
-    !('title' in playlist.header)
-  ) {
+  if (!playlist || !playlist.items || playlist.items.length === 0) {
     sendError(
       new Error(t('plugins.downloader.backend.feedback.playlist-is-empty')),
     );
     return;
   }
 
-  const normalPlaylistTitle = playlist.header?.title?.text;
+  const normalPlaylistTitle =
+    playlist.header && 'title' in playlist.header
+      ? playlist.header?.title?.text
+      : undefined;
   const playlistTitle =
     normalPlaylistTitle ??
     playlist.page.contents_memo
