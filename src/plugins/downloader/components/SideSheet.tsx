@@ -1,18 +1,22 @@
-import { createEffect, createSignal, onCleanup } from 'solid-js';
+import { createEffect, onCleanup } from 'solid-js';
 import { showDownloadsSheet, setShowDownloadsSheet } from '../renderer';
 
 export const SideSheet = () => {
-  const [ref, setRef] = createSignal<HTMLDivElement | undefined>(undefined);
-
   createEffect(() => {
     const active = showDownloadsSheet();
-    const elem = ref();
-    if (!active || !elem) return;
+    if (!active) return;
+
+    const selector = '.ytmd-downloads-ui-side-sheet';
+    const elem = document.querySelector<HTMLElement>(selector);
+    if (!elem) return;
+
+    // TODO: Ignore clicks on overlays
 
     const handler = (e: MouseEvent) => {
-      const clickedOutside =
-        !elem.isSameNode(e.target as Node) && !elem.contains(e.target as Node);
-      if (clickedOutside) {
+      const isSelf = elem.isSameNode(e.target as Node);
+      const isWithin = elem.contains(e.target as Node);
+
+      if (!isSelf && !isWithin) {
         setShowDownloadsSheet(false);
       }
     };
@@ -21,12 +25,5 @@ export const SideSheet = () => {
     onCleanup(() => document.removeEventListener('click', handler));
   });
 
-  return (
-    <div
-      ref={setRef}
-      class={
-        'ytmd-downloads-ui-side-sheet' + (showDownloadsSheet() ? ' active' : '')
-      }
-    ></div>
-  );
+  return <></>;
 };

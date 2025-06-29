@@ -18,8 +18,8 @@ import type { RendererContext } from '@/types/contexts';
 
 import type { DownloaderPluginConfig } from './index';
 import { waitForElement } from '@/utils/wait-for-element';
-import { Portal, render } from 'solid-js/web';
-import { createEffect, createSignal, Show } from 'solid-js';
+import { render } from 'solid-js/web';
+import { createEffect, createSignal } from 'solid-js';
 import { SideSheet } from './components';
 
 let menu: Element | null = null;
@@ -114,6 +114,20 @@ window.download = () => {
 };
 
 export const [showDownloadsSheet, setShowDownloadsSheet] = createSignal(false);
+createEffect(() => {
+  const active = showDownloadsSheet();
+
+  const selector = '.ytmd-downloads-ui-side-sheet';
+  const elem = document.querySelector<HTMLElement>(selector);
+  if (!elem) return;
+
+  if (active) {
+    elem.classList.add('active');
+  } else {
+    elem.classList.remove('active');
+  }
+});
+
 const DownloadsButton = () => {
   return (
     <div
@@ -139,47 +153,71 @@ const DownloadsButton = () => {
   );
 };
 
-const cleanup: Record<string, () => void> = {};
+const cleanup: Record<string, [() => void, (elem: HTMLElement) => void]> = {};
 const dispose = () => {
   for (const key in cleanup) {
-    cleanup[key]();
-    waitForElement<HTMLElement>(`#${key}`).then(injectButton);
+    const [dispose, inject] = cleanup[key];
+    dispose();
+
+    waitForElement<HTMLElement>(`#${key}`).then(inject);
   }
 };
 
-// prettier-ignore
 const injectButton = async (guide: HTMLElement) => {
   const items = guide.querySelector(
-    "ytmusic-guide-section-renderer[is-primary] > #items",
+    'ytmusic-guide-section-renderer[is-primary] > #items'
   );
   if (!items) return;
 
   // dispose of the previous button
-  cleanup[guide.id]?.();
+  cleanup[guide.id]?.[0]();
 
-  const entry = document.createElement("div");
+  const entry = document.createElement('div');
   {
-    const isMini = guide.id.startsWith("mini-");
+    const isMini = guide.id.startsWith('mini-');
 
-    entry.classList.add("ytmd-downloads-ui-btn");
-    entry.classList.add(isMini ? "mini" : "normal");
+    entry.classList.add('ytmd-downloads-ui-btn');
+    entry.classList.add(isMini ? 'mini' : 'normal');
 
     items.appendChild(entry);
   }
 
   const dispose = render(DownloadsButton, entry);
-  cleanup[guide.id] = () => {
-    dispose();
-    entry.remove()
-  };
+  cleanup[guide.id] = [
+    () => {
+      dispose();
+      entry.remove();
+    },
+    injectButton,
+  ];
 };
 
 const injectSheet = (container: HTMLElement) => {
-  cleanup[container.id]?.();
-  const dispose = render(SideSheet, container);
+  cleanup[container.id]?.[0]();
 
-  cleanup[container.id] = dispose;
+  const div = document.createElement('div');
+  {
+    div.className = 'ytmd-downloads-ui-side-sheet';
+    container.appendChild(div);
+  }
+
+  const dispose = render(SideSheet, div);
+  cleanup[container.id] = [
+    () => {
+      dispose();
+      div.remove();
+    },
+    injectSheet,
+  ];
 };
+
+const observer = new MutationObserver(() => {
+  const selector = '.ytmd-downloads-ui-side-sheet';
+  const elem = document.querySelector(selector);
+  if (elem) return;
+
+  injectSheet(document.querySelector<HTMLElement>('#layout')!);
+});
 
 export const renderer = createRenderer({
   async start({ ipc }) {
@@ -201,10 +239,16 @@ export const renderer = createRenderer({
 
     waitForElement<HTMLElement>('#guide-renderer').then(injectButton);
     waitForElement<HTMLElement>('#mini-guide-renderer').then(injectButton);
-    waitForElement<HTMLElement>('#content-wrapper').then(injectSheet);
+
+    waitForElement<HTMLElement>('#layout').then((layout) => {
+      injectSheet(layout);
+      observer.observe(layout);
+    });
   },
-  async stop() {
+  async stop({ ipc }) {
     _ipc = null;
+    ipc.removeAllListeners('downloader-feedback');
+    observer.disconnect();
   },
 
   onPlayerApiReady() {
