@@ -349,11 +349,11 @@
       "prompt": {
         "hostname": {
           "title": "Proxy Hostname",
-        "label": "Enter hostname for local proxy server (requires restart):"
+          "label": "Enter hostname for local proxy server (requires restart):"
         },
         "port": {
           "title": "Proxy Port",
-        "label": "Enter port for local proxy server (requires restart):"
+          "label": "Enter port for local proxy server (requires restart):"
         }
       }
     },
@@ -508,6 +508,7 @@
         "skip-existing": "Skip existing files"
       },
       "name": "Downloader",
+      "button": "Downloads",
       "renderer": {
         "can-not-update-progress": "Cannot update progress"
       },

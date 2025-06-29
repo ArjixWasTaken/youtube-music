@@ -1,3 +1,7 @@
+:root {
+  --ytmd-downloads-border-radius: 0.5rem;
+}
+
 .ytmd-menu-item {
   display: var(--ytmusic-menu-item_-_display);
   height: var(--ytmusic-menu-item_-_height);
@@ -18,4 +22,78 @@
   width: var(--iron-icon-width, 24px);
   height: var(--iron-icon-height, 24px);
   animation: var(--iron-icon_-_animation);
+}
+
+.ytmd-downloads-ui-btn {
+  --ytmusic-guide-entry-background-color: rgba(0, 0, 0, 0);
+
+  white-space: nowrap;
+  font-family: 'Roboto', 'Noto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+  cursor: pointer;
+  user-select: none;
+
+  &:has( > .ytmd-downloads-ui-btn-content.active) {
+    --ytmusic-guide-entry-background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &.normal {
+    & > .ytmd-downloads-ui-btn-content {
+      background-color: var(--ytmusic-guide-entry-background-color);
+      border-radius: var(--ytmd-downloads-border-radius);
+
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      padding: 0 20px;
+      height: 48px;
+      font-size: 16px;
+      line-height: 24px;
+
+      padding: 0 20px;
+
+      &:hover,
+      &:focus-within {
+        --ytmusic-guide-entry-background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      & > yt-icon {
+        margin-right: 20px;
+      }
+    }
+  }
+
+  &.mini {
+    display: block;
+    min-height: 0;
+    padding: 12px 0;
+    text-align: center;
+    background-color: var(--ytmusic-guide-entry-background-color);
+    border-radius: var(--ytmd-downloads-border-radius);
+
+    &:hover,
+    &:focus-within {
+      --ytmusic-guide-entry-background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+.ytmd-downloads-ui-side-sheet {
+  background-color: blueviolet;
+  margin-left: var(--ytmusic-guide-width);
+  margin-top: var(--ytmusic-nav-bar-height);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--ytmusic-content-width);
+  height: calc(100vh - var(--ytmusic-nav-bar-height));
+  border-radius: 0 1rem 1rem 0;
+
+  transform: translateX(-150%);
+  transition: transform 0.3s ease-in-out;
+
+  &.active {
+    transform: translateX(0);
+  }
 }

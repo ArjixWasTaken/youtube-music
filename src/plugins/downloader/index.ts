@@ -4,7 +4,7 @@ import style from './style.css?inline';
 
 import { createPlugin } from '@/utils';
 import { onConfigChange, onMainLoad } from './main';
-import { onPlayerApiReady, onRendererLoad } from './renderer';
+import { renderer } from './renderer';
 import { onMenu } from './menu';
 import { t } from '@/i18n';
 
@@ -51,8 +51,5 @@ export default createPlugin({
     start: onMainLoad,
     onConfigChange,
   },
-  renderer: {
-    start: onRendererLoad,
-    onPlayerApiReady,
-  },
+  renderer,
 });
